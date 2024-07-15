@@ -1,0 +1,96 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+
+#game-board {
+    width: 400px;
+    height: 400px;
+    background-color: #000;
+    display: grid;
+    grid-template-columns: repeat(20, 20px);
+    grid-template-rows: repeat(20, 20px);
+    margin-bottom: 20px;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #333;
+    position: relative;
+}
+
+.pacman {
+    width: 100%;
+    height: 100%;
+    background-color: yellow;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    animation: pacman-animation 0.3s infinite;
+}
+
+.pacman::before {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    background-color: #000;
+    top: 25%;
+    left: 50%;
+    transform-origin: left center;
+    animation: pacman-mouth 0.3s infinite;
+}
+
+.pacman::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color:white;
+    border-radius: 50%;
+    top: 5px;
+    left: 10px;
+}
+
+.food {
+    background-color: blue;
+    border-radius: 50%;
+}
+
+#score, #question {
+    margin-top: 20px;
+    font-size: 24px;
+    text-align: center;
+}
+
+@keyframes pacman-animation {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(45deg);
+    }
+    50% {
+        transform: rotate(0deg);
+    }
+    75% {
+        transform: rotate(-45deg);
+    }
+}
+
+@keyframes pacman-mouth {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(45deg);
+    }
+}
