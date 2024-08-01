@@ -7,15 +7,22 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0; /* Cor de fundo para visualização */
+            background-color: #353829; /* Cor de fundo para visualização */
             font-family: Arial, sans-serif;
+            color: white;
         }
 
-        div {
+        .title {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .button-container {
             text-align: center;
         }
 
@@ -31,11 +38,11 @@
             font-size: 18px;
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50;
+            background-color: #e6f517;
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px #419455; /* Sombra para efeito 3D */
+            box-shadow: 0 5px #9bb605; /* Sombra para efeito 3D */
             position: relative;
         }
 
@@ -45,15 +52,18 @@
         }
 
         button:hover {
-            background-color: #45a049; /* Cor ao passar o mouse */
+            background-color: #a5bd1d; /* Cor ao passar o mouse */
         }
     </style>
 </head>
 <body>
-    <div>
+    <div class="title">PAC-MATH</div>
+
+    <div class="button-container">
         <a href="jogo.html"><button>JOGAR</button></a>
         <a href="info.html"><button>INFORMAÇÕES</button></a>
         <a href="creditos.html"><button>CRÉDITOS</button></a>
     </div>
 </body>
 </html>
+
