@@ -1,40 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <title>Menu</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #353829; /* Cor de fundo para visualização */
-            font-family: Arial, sans-serif;
-            color: white;
+            background-color: #353829;
+            font-family: Impact, sans-serif;
+            color: #fff;
         }
 
-        .title {
+        #title {
             font-size: 48px;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
 
-        .button-container {
-            text-align: center;
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        a {
+        .menu-buttons a {
             display: block;
             margin: 10px 0;
             text-decoration: none;
         }
 
-        button {
-            width: 200px; /* Largura fixa */
-            height: 50px; /* Altura fixa */
+        .menu-buttons button {
+            width: 200px;
+            height: 50px;
             font-size: 18px;
             border: none;
             border-radius: 5px;
@@ -42,28 +45,25 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px #9bb605; /* Sombra para efeito 3D */
-            position: relative;
+            box-shadow: 0 5px #9bb605;
         }
 
-        button:active {
+        .menu-buttons button:active {
             box-shadow: 0 2px #666;
-            transform: translateY(4px); /* Efeito de pressionar o botão */
+            transform: translateY(4px);
         }
 
-        button:hover {
-            background-color: #a5bd1d; /* Cor ao passar o mouse */
+        .menu-buttons button:hover {
+            background-color: #a5bd1d;
         }
     </style>
 </head>
 <body>
-    <div class="title">PAC-MATH</div>
-
-    <div class="button-container">
+    <div id="title">PAC-MATH</div>
+    <div class="menu-buttons">
         <a href="jogo.html"><button>JOGAR</button></a>
         <a href="info.html"><button>INFORMAÇÕES</button></a>
         <a href="creditos.html"><button>CRÉDITOS</button></a>
     </div>
 </body>
 </html>
-
