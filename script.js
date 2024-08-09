@@ -1,159 +1,240 @@
-// Define o estado inicial do Pac-Man, comida, pontuação e outras variáveis do jogo
-let pacman = { x: 10, y: 10, direction: 'right' };
-let foods = [];
-let score = 0;
-let gamePaused = false;
-let boardSize = 20;
-let cellSize = 26;
-let speed = 0.2;
-let currentQuestionIndex = 0;
+// Variáveis para armazenar o Pac-Man, a comida, a pontuação, e o estado do jogo
+let pacman = { x: 10, y: 10, direcao: 'direita' }; 
+let comidas = [];
+let pontuacao = 0;
+let jogoPausado = false;
+let tamanhoTabuleiro = 16;
+let tamanhoCelula = 26;
+let velocidade = 0.2; 
+let respostaCorreta = null;
+let mensagemErro = '';
+let idPergunta = 0;
+const perguntas = [
+        { pergunta: 'Quanto é 2 + 3?', resposta: 5 },
+        { pergunta: 'Quanto é 7 - 4?', resposta: 3 },
+        { pergunta: 'Quanto é 5 * 2?', resposta: 10 },
+        { pergunta: 'Quanto é 9 / 3?', resposta: 3 },
+        { pergunta: 'Quanto é 12 + 8?', resposta: 20 },
+        { pergunta: 'Quanto é 15 - 6?', resposta: 9 },
+        { pergunta: 'Quanto é 3 * 4?', resposta: 12 },
+        { pergunta: 'Quanto é 18 / 2?', resposta: 9 },
+        { pergunta: 'Quanto é 20 - 5?', resposta: 15 },
+        { pergunta: 'Quanto é 7 * 3?', resposta: 21 },
+        { pergunta: 'Quanto é 25 + 14?', resposta: 39 },
+        { pergunta: 'Quanto é 50 - 22?', resposta: 28 },
+        { pergunta: 'Quanto é 8 * 7?', resposta: 56 },
+        { pergunta: 'Quanto é 36 / 6?', resposta: 6 },
+        { pergunta: 'Quanto é 14 * 2 + 10?', resposta: 38 },
+        { pergunta: 'Quanto é 25 + 30 - 15?', resposta: 40 },
+        { pergunta: 'Quanto é 9 * 5 + 4?', resposta: 49 },
+        { pergunta: 'Quanto é 8 * 8 - 16?', resposta: 48 },
+        { pergunta: 'Quanto é 100 / 4 + 25?', resposta: 50 },
+        { pergunta: 'Quanto é 15 * 3 - 5?', resposta: 40 },
+        { pergunta: 'Quanto é 18 / 2 + 7 * 2?', resposta: 25 },
+        { pergunta: 'Quanto é 6 * 6 + 3 * 3?', resposta: 45 },
+        { pergunta: 'Quanto é 40 + 20 / 5?', resposta: 44 },
+        { pergunta: 'Quanto é 12 * 4 - 10 / 2?', resposta: 38 },
+        { pergunta: 'Quanto é (5 * 5) + (3 * 3)?', resposta: 34 }
+    ];
 
-// Lista de perguntas e respostas
-const questions = [
-    { question: "Quanto é 2 + 2?", answer: 4 },
-    { question: "Quanto é 5 x 3?", answer: 15 },
-    { question: "Quanto é 10 - 7?", answer: 3 },
-    { question: "Quanto é 6 / 2?", answer: 3 },
-    // Adicione mais perguntas aqui
-];
-
-// Função de configuração inicial do jogo
+// Configuração inicial do jogo
 function setup() {
-    createCanvas(boardSize * cellSize, boardSize * cellSize); // Cria o canvas
-    pacman.x = Math.floor(boardSize / 2); // Posiciona o Pac-Man no centro do tabuleiro
-    pacman.y = Math.floor(boardSize / 2);
-    generateQuestion(); // Gera a primeira pergunta
-    textFont('Arial'); // Define a fonte do texto
+    // Cria o canvas com o tamanho do tabuleiro
+    createCanvas(tamanhoTabuleiro * tamanhoCelula, tamanhoTabuleiro * tamanhoCelula);
+    
+    // Define a posição inicial do Pac-Man no centro do tabuleiro
+    pacman.x = Math.floor(tamanhoTabuleiro / 2);
+    pacman.y = Math.floor(tamanhoTabuleiro / 2);
+    
+    // Gera a primeira pergunta e configura as comidas
+    gerarPergunta();
+    
+    // Define a fonte padrão para o texto
+    textFont('Arial');
 }
 
-// Função principal do jogo que é chamada repetidamente
+
+// Desenhar os elementos do jogo a cada frame
 function draw() {
-    background(0); // Define o fundo como preto
-    if (!gamePaused) { // Se o jogo não estiver pausado
-        movePacman(); // Move o Pac-Man
+    background(0);
+    if (!jogoPausado) {
+        moverPacman();
     }
 
-    drawPacman(pacman.x, pacman.y, pacman.direction); // Desenha o Pac-Man
-    drawFoods(); // Desenha a comida
+    desenharPacman(pacman.x, pacman.y, pacman.direcao);
+    desenharComidas();
+    exibirMensagemErro();
 
-    document.getElementById('score').textContent = 'Pontuação: ' + score; // Atualiza a pontuação na tela
+    document.getElementById('score').textContent = 'Pontuação: ' + pontuacao;
 }
 
-// Função que desenha o Pac-Man
-function drawPacman(x, y, direction) {
-    fill(255, 255, 0); // Cor amarela para o Pac-Man
-    let tm = PI / 16; // Ângulo mínimo da boca
-    let mI = tm * sin(frameCount * 0.1) + tm; // Ângulo inicial da boca
-    let mF = TWO_PI - mI; // Ângulo final da boca
+// Função para desenhar o Pac-Man na tela
+function desenharPacman(x, y, direcao) {
+    fill(255, 255, 0); // Cor do Pac-Man
+    let tm = PI / 16;
+    let mI = tm * sin(frameCount * 0.1) + tm;
+    let mF = TWO_PI - mI;
 
     push();
-    translate(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2); // Posiciona o Pac-Man no lugar correto
+    translate(x * tamanhoCelula + tamanhoCelula / 2, y * tamanhoCelula + tamanhoCelula / 2);
 
-    // Define a direção do Pac-Man
-    if (direction === 'right') {
+    // Rotacionar o Pac-Man de acordo com a direção
+    if (direcao === 'direita') {
         rotate(0);
-    } else if (direction === 'left') {
+    } else if (direcao === 'esquerda') {
         rotate(PI);
-    } else if (direction === 'up') {
+    } else if (direcao === 'cima') {
         rotate(-HALF_PI);
-    } else if (direction === 'down') {
+    } else if (direcao === 'baixo') {
         rotate(HALF_PI);
     }
 
-    // Desenha o Pac-Man com boca aberta e fechando
-    arc(0, 0, cellSize, cellSize, mI, mF, PIE);
+    arc(0, 0, tamanhoCelula, tamanhoCelula, mI, mF, PIE);
     pop();
 }
 
-// Função que desenha as comidas (respostas)
-function drawFoods() {
+// Função para desenhar a comida na tela
+function desenharComidas() {
     textAlign(CENTER, CENTER);
-    textSize(cellSize / 2); // Ajuste o tamanho do texto
+    textSize(tamanhoCelula / 2); // Ajustar o tamanho do texto
     fill(0); // Cor do texto
 
-    for (let food of foods) {
-        if (!food.eaten) { // Se a comida não foi comida
+    for (let i = 0; i < comidas.length; i++) {
+        let comida = comidas[i];
+        
+        if (!comida.comidaComida) {
             fill(255, 255, 255); // Cor da bola
             stroke(0); // Borda preta
             strokeWeight(2);
-            ellipse(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, cellSize * 0.8); // Desenha a bola
+            ellipse(comida.x * tamanhoCelula + tamanhoCelula / 2, comida.y * tamanhoCelula + tamanhoCelula / 2, tamanhoCelula * 0.8);
 
             fill(0); // Cor do texto dentro da bola
             noStroke();
-            text(food.value, food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2); // Desenha o valor da resposta
+            text(comida.valor, comida.x * tamanhoCelula + tamanhoCelula / 2, comida.y * tamanhoCelula + tamanhoCelula / 2);
         }
     }
 }
 
-// Função que move o Pac-Man
-function movePacman() {
-    let moved = false;
-    if (keyIsDown(LEFT_ARROW)) { // Se a tecla seta para esquerda está pressionada
-        pacman.x -= speed;
-        pacman.direction = 'left';
-        if (pacman.x < 0) pacman.x = 0;
-        moved = true;
-    }
-    if (keyIsDown(RIGHT_ARROW)) { // Se a tecla seta para direita está pressionada
-        pacman.x += speed;
-        pacman.direction = 'right';
-        if (pacman.x >= boardSize - 1) pacman.x = boardSize - 1;
-        moved = true;
-    }
-    if (keyIsDown(UP_ARROW)) { // Se a tecla seta para cima está pressionada
-        pacman.y -= speed;
-        pacman.direction = 'up';
-        if (pacman.y < 0) pacman.y = 0;
-        moved = true;
-    }
-    if (keyIsDown(DOWN_ARROW)) { // Se a tecla seta para baixo está pressionada
-        pacman.y += speed;
-        pacman.direction = 'down';
-        if (pacman.y >= boardSize - 1) pacman.y = boardSize - 1;
-        moved = true;
+// Função para mover o Pac-Man
+function moverPacman() {
+    let moveu = false;
+
+    // Verifica se a tecla para a esquerda está pressionada
+    if (keyIsDown(LEFT_ARROW)) {
+        pacman.x -= velocidade; // Move o Pac-Man para a esquerda
+        pacman.direcao = 'esquerda'; // Define a direção para a esquerda
+        if (pacman.x < 0) pacman.x = 0; // Garante que o Pac-Man não saia do tabuleiro
+        moveu = true;
+    } 
+    // Verifica se a tecla para a direita está pressionada
+    else if (keyIsDown(RIGHT_ARROW)) {
+        pacman.x += velocidade; // Move o Pac-Man para a direita
+        pacman.direcao = 'direita'; // Define a direção para a direita
+        if (pacman.x >= tamanhoTabuleiro - 1) pacman.x = tamanhoTabuleiro - 1; // Garante que o Pac-Man não saia do tabuleiro
+        moveu = true;
+    } 
+    // Verifica se a tecla para cima está pressionada
+    else if (keyIsDown(UP_ARROW)) {
+        pacman.y -= velocidade; // Move o Pac-Man para cima
+        pacman.direcao = 'cima'; // Define a direção para cima
+        if (pacman.y < 0) pacman.y = 0; // Garante que o Pac-Man não saia do tabuleiro
+        moveu = true;
+    } 
+    // Verifica se a tecla para baixo está pressionada
+    else if (keyIsDown(DOWN_ARROW)) {
+        pacman.y += velocidade; // Move o Pac-Man para baixo
+        pacman.direcao = 'baixo'; // Define a direção para baixo
+        if (pacman.y >= tamanhoTabuleiro - 1) pacman.y = tamanhoTabuleiro - 1; // Garante que o Pac-Man não saia do tabuleiro
+        moveu = true;
     }
 
-    checkFoodCollision(); // Verifica se o Pac-Man comeu alguma comida
+    verificarColisaoComida(); // Verifica se o Pac-Man colidiu com a comida
 }
 
-// Função que gera uma pergunta e posiciona as respostas no tabuleiro
-function generateQuestion() {
-    const questionData = questions[currentQuestionIndex]; // Pega a pergunta atual
-    document.getElementById('question-text').textContent = questionData.question; // Mostra a pergunta na tela
+// Função para gerar uma nova pergunta matemática
+function gerarPergunta() {
+    // Verifica se o índice da pergunta atual é maior ou igual ao número total de perguntas
+    if (idPergunta >= perguntas.length) {
+        idPergunta = 0; // Reinicia o índice para o início da lista de perguntas
+    }
+    
+    // Obtém a pergunta atual com base no índice
+    const perguntaAtual = perguntas[idPergunta];
+    
+    // Avança para a próxima pergunta
+    idPergunta++;
+    
+    // Atualiza o texto da pergunta no HTML
+    document.getElementById('question-text').textContent = perguntaAtual.pergunta;
 
-    const answers = generateAnswers(questionData.answer); // Gera respostas (correta e erradas)
+    // Gera um array de respostas possíveis para a pergunta atual
+    const respostas = gerarRespostas(perguntaAtual.resposta);
 
-    foods = answers.map(answer => ({
-        x: Math.floor(Math.random() * boardSize), // Posiciona a resposta em uma posição aleatória no tabuleiro
-        y: Math.floor(Math.random() * boardSize),
-        value: answer,
-        correct: answer === questionData.answer, // Marca a resposta correta
-        eaten: false
+    // Cria a lista de comidas com base nas respostas geradas
+    comidas = respostas.map(resposta => ({
+        x: Math.floor(Math.random() * tamanhoTabuleiro), // Define a posição x aleatória para a comida
+        y: Math.floor(Math.random() * tamanhoTabuleiro), // Define a posição y aleatória para a comida
+        valor: resposta, // Define o valor da comida
+        correta: resposta === perguntaAtual.resposta, // Marca se a comida é a resposta correta
+        comidaComida: false // Inicialmente, a comida não foi comida
     }));
 }
 
-// Função que gera respostas (uma correta e outras erradas)
-function generateAnswers(correctAnswer) {
-    const answers = [correctAnswer]; // Começa com a resposta correta
-    while (answers.length < 4) { // Gera até ter 4 respostas
-        const wrongAnswer = Math.floor(Math.random() * 20); // Gera uma resposta errada
-        if (!answers.includes(wrongAnswer)) { // Certifica-se de que não há respostas duplicadas
-            answers.push(wrongAnswer);
+// Função para gerar respostas possíveis para a pergunta
+function gerarRespostas(respostaCorreta) {
+    const respostas = [respostaCorreta]; // Inicia o array de respostas com a resposta correta
+    
+    // Adiciona respostas erradas até que o array tenha 4 respostas
+    while (respostas.length < 4) {
+        const respostaErrada = Math.floor(Math.random() * 30); // Gera uma resposta errada aleatória
+        if (!respostas.includes(respostaErrada)) { // Verifica se a resposta errada não está no array
+            respostas.push(respostaErrada); // Adiciona a resposta errada ao array de respostas
         }
     }
-    return answers.sort(() => Math.random() - 0.5); // Embaralha as respostas
+    
+    // Embaralha as respostas antes de retorná-las
+    return respostas.sort(() => Math.random() - 0.5);
 }
 
-// Função que verifica se o Pac-Man comeu alguma comida
-function checkFoodCollision() {
-    for (let food of foods) {
-        if (!food.eaten && dist(pacman.x * cellSize, pacman.y * cellSize, food.x * cellSize, food.y * cellSize) < cellSize / 2) {
-            food.eaten = true;
-            if (food.correct) { // Se a comida é a resposta correta
-                score += 10; // Aumenta a pontuação
-                currentQuestionIndex = (currentQuestionIndex + 1) % questions.length; // Passa para a próxima pergunta
-                generateQuestion(); // Gera a próxima pergunta
+
+
+// Função para verificar se o Pac-Man colidiu com a comida
+function verificarColisaoComida() {
+    for (let i = 0; i < comidas.length; i++) {
+        let comida = comidas[i];
+
+        // Verifica se a comida ainda não foi comida e se há colisão com o Pac-Man
+        if (!comida.comidaComida && dist(pacman.x * tamanhoCelula, pacman.y * tamanhoCelula, comida.x * tamanhoCelula, comida.y * tamanhoCelula) < tamanhoCelula / 2) {
+            comida.comidaComida = true;
+
+            // Se a comida for a resposta correta, aumenta a pontuação e gera uma nova pergunta
+            if (comida.correta) {
+                pontuacao += 15;
+                gerarPergunta();
+            } else {
+                // Se a comida for a resposta errada, diminui a pontuação e exibe a mensagem de erro
+                pontuacao -= 30;
+                mensagemErro = 'Resposta Errada!';
+                setTimeout(() => mensagemErro = '', 2000); // Limpa a mensagem após 2 segundos
             }
         }
     }
 }
+
+// Função para exibir a mensagem de erro
+function exibirMensagemErro() {
+    if (mensagemErro) {
+        fill(255, 0, 0); // Cor vermelha
+        textSize(32);
+        textAlign(CENTER, CENTER);
+        text(mensagemErro, width / 2, height / 2);
+        textStyle(BOLD);
+
+        // Exibir a pontuação abaixo da mensagem de erro
+        textSize(24); // Ajustar o tamanho do texto da pontuação, se necessário
+        text("- 30 Pontos", width / 2, (height / 2) + 40);
+    }
+}
+
+// Adicionar um evento para gerar uma nova pergunta quando um botão for clicado
+document.getElementById('submit-answer').addEventListener('click', gerarPergunta);
