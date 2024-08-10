@@ -236,5 +236,3 @@ function exibirMensagemErro() {
     }
 }
 
-// Adicionar um evento para gerar uma nova pergunta quando um botão for clicado
-document.getElementById('submit-answer').addEventListener('click', gerarPergunta);
